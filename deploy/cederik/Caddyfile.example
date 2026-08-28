@@ -1,0 +1,6 @@
+openseo.cederik.com {
+	basic_auth {
+		cederik REPLACE_WITH_BCRYPT_HASH
+	}
+	reverse_proxy open-seo:3001
+}
