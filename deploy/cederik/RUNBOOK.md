@@ -104,6 +104,27 @@ claude mcp remove --scope user openseo             # dead endpoint otherwise
 - Headless OAuth on neoremote: shim `xdg-open` to a script that writes `$1` to a file, run `store auth`, send the captured authorize URL to Cederik, have them paste back the failing `http://127.0.0.1:<port>/auth/callback?...` URL, then `curl` that URL locally. The code expires in minutes.
 - Page meta descriptions and titles are the metafields `global.description_tag` and `global.title_tag` (`metafieldsSet`, max 25 per call). Collection SEO goes through `collectionUpdate` with `input: {id, seo}`. The homepage title and description live in Online Store > Preferences and have **no API**: Cederik pastes those by hand.
 
+## Google Search Console + GA4 (planned at the 2026-09 relaunch)
+
+Free, read-only, no DataForSEO credits. GSC gives real clicks, impressions, per-query CTR and URL inspection; GA4 gives conversions and revenue per landing page. Full docs: `docs/SELF_HOSTING_GOOGLE_SEARCH_CONSOLE.md` and `docs/SELF_HOSTING_GOOGLE_ANALYTICS.md` in this repo.
+
+Split of work:
+
+**Cederik, one time, in a browser (about 15 minutes):**
+1. In [Google Cloud Console](https://console.cloud.google.com/): create a project, enable the **Search Console API**, **Analytics Admin API**, and **Analytics Data API**.
+2. OAuth consent screen: External, Testing mode is fine; add the connecting Google account as a **test user**.
+3. Create an OAuth client, type Web application, with BOTH redirect URIs, exact match, no trailing slash:
+   - `https://openseo.cederik.com/api/gsc/oauth/callback`
+   - `https://openseo.cederik.com/api/ga4/oauth/callback`
+4. Hand the Client ID and Client secret to the Claude session.
+5. Prerequisite on the Google side: thenaturalbeautyclub.com must be a **verified GSC property**, and the GA4 property (Shopify's Google & YouTube channel usually created one) must be accessible to that same Google account.
+
+**Claude session:**
+1. Put `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` into `/opt/openseo/.env`. `BETTER_AUTH_SECRET` is already in the backup env (generated 2026-08-29). **Never rotate it: it encrypts the stored Google grants; changing it kills the connections.**
+2. `cd /opt/openseo && docker compose up -d --force-recreate open-seo`.
+3. Send Cederik to **Integrations → Connect with Google** in the app (any browser works: the redirect URI is the public domain, no localhost trick needed). Connect GSC and GA4 separately, bind both to the project.
+4. Verify: `/api/health` shows gsc ok, then MCP tools `get_search_console_performance`, `inspect_urls` (check indexing of the fixed pages), and the `get_google_analytics_*` reports work.
+
 ## Costs
 
 - Server: cax11, about EUR 3.79 per month. Teardown when idle; relaunch takes 10 minutes with this runbook.
