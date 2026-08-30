@@ -106,7 +106,7 @@ claude mcp remove --scope user openseo             # dead endpoint otherwise
 
 ## Google Search Console + GA4 (planned at the 2026-09 relaunch)
 
-Free, read-only, no DataForSEO credits. GSC gives real clicks, impressions, per-query CTR and URL inspection; GA4 gives conversions and revenue per landing page. Full docs: `docs/SELF_HOSTING_GOOGLE_SEARCH_CONSOLE.md` and `docs/SELF_HOSTING_GOOGLE_ANALYTICS.md` in this repo.
+Free, read-only, no DataForSEO credits. GSC gives real clicks, impressions, per-query CTR and URL inspection; GA4 gives conversions and revenue per landing page. Full docs: `docs/SELF_HOSTING_GOOGLE_SEARCH_CONSOLE.md` and `docs/SELF_HOSTING_GOOGLE_ANALYTICS.md` in this repo. Long term, NimsForest issue #237 (iamnim/pantheon Google token broker) replaces this per-app OAuth; until it lands, the built-in connect below is the way.
 
 Split of work:
 
