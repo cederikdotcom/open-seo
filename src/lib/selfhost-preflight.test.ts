@@ -60,6 +60,18 @@ describe("runSelfhostPreflight", () => {
     expect(itemFor(result, "DATAFORSEO_API_KEY")?.message).toContain("base64");
   });
 
+  it("does not confuse broker configuration with live metrics", () => {
+    const result = runSelfhostPreflight({
+      AUTH_MODE: "local_noauth",
+      IAMNIM_GOOGLE_BROKER_URL: "https://iamnim.test",
+      IAMNIM_ORG_SLUG: "club",
+    });
+    expect(
+      itemFor(result, "Search Console / Analytics broker")?.message,
+    ).toContain("unavailable");
+    expect(result.failed).toBe(false);
+  });
+
   it("warns that GSC stays disabled on a short BETTER_AUTH_SECRET", () => {
     const result = runSelfhostPreflight({
       AUTH_MODE: "local_noauth",

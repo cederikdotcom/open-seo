@@ -158,7 +158,19 @@ function checkOptionalFeatures(env: EnvRecord, items: PreflightItem[]): void {
   const clientSecret = get(env, "GOOGLE_CLIENT_SECRET");
   const betterAuthSecret = get(env, "BETTER_AUTH_SECRET");
 
-  if (clientId || clientSecret) {
+  if (get(env, "IAMNIM_GOOGLE_BROKER_URL")) {
+    const ready = Boolean(
+      get(env, "IAMNIM_PAT") && get(env, "IAMNIM_ORG_SLUG"),
+    );
+    items.push({
+      key: "gsc",
+      name: "Search Console / Analytics broker",
+      level: ready ? "info" : "warn",
+      message: ready
+        ? "iamnim broker configured; named grant, property access and live metrics still require validation."
+        : "iamnim broker selected; configure an organization-scoped Google-vending PAT. Google metrics are unavailable.",
+    });
+  } else if (clientId || clientSecret) {
     if (!clientId || !clientSecret) {
       items.push({
         key: "gsc",
