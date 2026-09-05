@@ -1,3 +1,4 @@
+import { getIamnimGoogleBroker } from "@/server/lib/iamnimGoogleBroker";
 import { getOptionalEnvValue } from "@/server/lib/runtime-env";
 import { MIN_BETTER_AUTH_SECRET_LENGTH } from "@/shared/selfhost-checks";
 
@@ -17,6 +18,7 @@ export async function getGoogleOAuthClientConfig(): Promise<GoogleOAuthClientCon
 export async function hasSelfHostedGoogleOAuthConfig(
   config?: GoogleOAuthClientConfig | null,
 ): Promise<boolean> {
+  if (config === undefined && (await getIamnimGoogleBroker())) return true;
   const oauthConfig =
     config === undefined ? await getGoogleOAuthClientConfig() : config;
   if (!oauthConfig) return false;

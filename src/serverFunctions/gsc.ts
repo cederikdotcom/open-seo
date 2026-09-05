@@ -1,3 +1,4 @@
+import { getIamnimGoogleBroker } from "@/server/lib/iamnimGoogleBroker";
 import { createServerFn } from "@tanstack/react-start";
 import { getRequest } from "@tanstack/react-start/server";
 import { waitUntil } from "cloudflare:workers";
@@ -50,6 +51,8 @@ export const getGscConnection = createServerFn({ method: "POST" })
       connected: Boolean(connection),
       currentUserHasGrant,
       googleOAuthConfigured: hosted || gscConfigured,
+      brokerManagementUrl:
+        (await getIamnimGoogleBroker())?.managementUrl ?? null,
       siteUrl: connection?.siteUrl ?? null,
       connectedByEmail: connection?.connectedAccountEmail ?? null,
       connectedAt: connection?.createdAt ?? null,

@@ -1,3 +1,4 @@
+import { iamnimGoogleGrantSources } from "@/server/lib/iamnimGoogleBroker";
 import { and, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { account } from "@/db/schema";
@@ -15,6 +16,8 @@ async function getConnection(projectId: string): Promise<Ga4Connection | null> {
 }
 
 async function listGrantsForUser(userId: string) {
+  const broker = await iamnimGoogleGrantSources(userId);
+  if (broker !== null) return broker;
   return db
     .select({ id: account.id, accountId: account.accountId })
     .from(account)
