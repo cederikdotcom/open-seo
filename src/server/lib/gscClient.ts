@@ -1,3 +1,7 @@
+import {
+  iamnimGoogleAccessToken,
+  getIamnimGoogleBroker,
+} from "./iamnimGoogleBroker";
 import { getAuth } from "@/lib/auth";
 import { GSC_OAUTH_PROVIDER_ID } from "@/shared/gsc";
 import { GscApiError, GscTokenError } from "./gscErrors";
@@ -87,6 +91,12 @@ export function createGscClient(opts: {
   async function getToken(): Promise<string> {
     let result: { accessToken?: string } | undefined;
     try {
+      const token = await iamnimGoogleAccessToken(
+        opts.userId,
+        opts.gscAccountId,
+        "google_search_console",
+      );
+      if (token !== null) return token;
       // Headerless call: getAccessToken trusts body.userId when no request
       // session is present, and auto-refreshes via the genericOAuth provider.
       // Works in every auth mode — self-hosted builds the same Better Auth
@@ -120,6 +130,7 @@ export function createGscClient(opts: {
     const hasBody = init?.body !== undefined;
     const response = await fetch(url, {
       method: init?.method ?? "GET",
+      redirect: "error",
       headers: {
         Authorization: `Bearer ${token}`,
         ...(hasBody ? { "Content-Type": "application/json" } : {}),
@@ -139,6 +150,7 @@ export function createGscClient(opts: {
 
   return {
     async getUserInfoEmail(): Promise<string | null> {
+      if (await getIamnimGoogleBroker()) return null;
       const data = await request<{ email?: unknown }>(GOOGLE_USERINFO_URL);
       return typeof data.email === "string" ? data.email : null;
     },

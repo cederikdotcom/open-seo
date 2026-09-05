@@ -1,3 +1,7 @@
+import {
+  iamnimGoogleAccessToken,
+  getIamnimGoogleBroker,
+} from "./iamnimGoogleBroker";
 /* eslint-disable max-lines -- one client module per Google integration (gscClient precedent); GA4 spans the Admin and Data APIs */
 import { z } from "zod";
 import { getAuth } from "@/lib/auth";
@@ -130,6 +134,12 @@ async function getGa4AccessToken(opts: {
 }): Promise<string> {
   let result: { accessToken?: string } | undefined;
   try {
+    const token = await iamnimGoogleAccessToken(
+      opts.userId,
+      opts.ga4AccountId,
+      "google_analytics",
+    );
+    if (token !== null) return token;
     result = await getAuth().api.getAccessToken({
       body: {
         providerId: GA4_OAUTH_PROVIDER_ID,
@@ -182,6 +192,7 @@ export function createGa4AdminClient(opts: {
     let response: Response;
     try {
       response = await fetch(url, {
+        redirect: "error",
         headers: { Authorization: `Bearer ${token}` },
       });
     } catch (error) {
@@ -207,6 +218,7 @@ export function createGa4AdminClient(opts: {
 
   return {
     async getUserInfoEmail(): Promise<string | null> {
+      if (await getIamnimGoogleBroker()) return null;
       const data = z
         .object({ email: z.string().email().optional() })
         .parse(await request(GOOGLE_USERINFO_URL));
@@ -429,6 +441,7 @@ export function createGa4DataClient(opts: {
       try {
         response = await fetch(`${GA4_DATA_API_BASE}/${propertyId}:runReport`, {
           method: "POST",
+          redirect: "error",
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",

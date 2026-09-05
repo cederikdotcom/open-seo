@@ -153,6 +153,20 @@ export function SearchConsoleConnectionCard({
               : "disconnected"
       }
     >
+      {connection?.brokerManagementUrl && (
+        <p>
+          Google access is managed in{" "}
+          <a
+            href={connection.brokerManagementUrl}
+            target="_blank"
+            rel="noreferrer"
+          >
+            iamnim
+          </a>
+          . Select a verified property below. Missing grants or PAT permissions
+          must be resolved there.
+        </p>
+      )}
       <GoogleLinkErrorAlert provider="gsc" className="mb-4" />
       {connectionQuery.isLoading ? (
         <div className="flex items-center gap-2 text-sm text-base-content/50">

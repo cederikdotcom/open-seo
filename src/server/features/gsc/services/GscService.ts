@@ -1,3 +1,4 @@
+import { iamnimGoogleGrantSources } from "@/server/lib/iamnimGoogleBroker";
 import { and, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { account } from "@/db/schema";
@@ -53,6 +54,8 @@ async function getConnection(projectId: string): Promise<GscConnection | null> {
 /** Whether this user has linked a google-search-console grant (regardless of
  *  whether they've picked a property yet). Drives the connect-vs-pick UI. */
 async function userHasGrant(userId: string): Promise<boolean> {
+  const broker = await iamnimGoogleGrantSources(userId);
+  if (broker !== null) return broker.length > 0;
   const rows = await db
     .select({ id: account.id })
     .from(account)
@@ -67,6 +70,8 @@ async function userHasGrant(userId: string): Promise<boolean> {
 }
 
 async function listGrantsForUser(userId: string) {
+  const broker = await iamnimGoogleGrantSources(userId);
+  if (broker !== null) return broker;
   return db
     .select({ id: account.id, accountId: account.accountId })
     .from(account)

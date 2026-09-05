@@ -1,3 +1,4 @@
+import { getIamnimGoogleBroker } from "@/server/lib/iamnimGoogleBroker";
 import { createServerFn } from "@tanstack/react-start";
 import { getRequest } from "@tanstack/react-start/server";
 import { waitUntil } from "cloudflare:workers";
@@ -45,6 +46,8 @@ export const getGa4Connection = createServerFn({ method: "POST" })
       connected: Boolean(connection),
       currentUserHasGrant,
       googleOAuthConfigured: hosted || ga4Configured,
+      brokerManagementUrl:
+        (await getIamnimGoogleBroker())?.managementUrl ?? null,
       propertyId: connection?.propertyId ?? null,
       propertyDisplayName: connection?.propertyDisplayName ?? null,
       propertyTimeZone: connection?.propertyTimeZone ?? null,

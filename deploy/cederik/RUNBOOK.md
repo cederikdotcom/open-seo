@@ -129,3 +129,40 @@ Split of work:
 
 - Server: cax11, about EUR 3.79 per month. Teardown when idle; relaunch takes 10 minutes with this runbook.
 - DataForSEO: pay per call. Typical: keyword research about $0.05 to $0.10 per seed, rank check $0.12 per 15-keyword run, domain overview and ranked keywords a few cents each. Log every purchase in the OpenSEO research log.
+
+## NimsForest broker wiring (2026-09-05, #264 / #251)
+
+The restored installation is based on upstream v0.1.7. Keep that deployed baseline;
+never replace it with the fork's older pre-relaunch checkout. The broker patch
+changes the existing GSC/GA4 clients' token source, without adding ingestion adapters.
+
+Set only these server-side variables in the protected `/opt/openseo/.env`:
+
+- `IAMNIM_GOOGLE_BROKER_URL=https://iamnim.com`
+- `IAMNIM_ORG_SLUG=thenaturalbeautyclub`
+- `IAMNIM_PAT=<human-created, Club-scoped GSC/GA4-vending PAT>`
+
+This deployment-level broker is allowed only in the existing `local_noauth` mode,
+behind Caddy authentication, for `local-admin`. Hosted or multi-user mode refuses
+it. The organization is fixed in configuration, never derived from a project or
+request. Do not set `GOOGLE_CLIENT_ID` or `GOOGLE_CLIENT_SECRET` for this Club service.
+Keep `BETTER_AUTH_SECRET` from the backup unchanged.
+
+The existing connect buttons open the organization's iamnim grant page in broker
+mode. The operator supplies a scoped PAT through the protected environment file;
+missing authority never falls back to OpenSEO OAuth. `iamnim:<org>` identifies the
+broker connection source, not an invented Google account or consent row. Property
+selection still calls the existing Google clients to verify access before storing
+the project mapping. Missing grants, properties or data remain unavailable. No
+userinfo/email scope is requested just to decorate the property picker.
+
+Disconnecting a project removes its property mapping; it does not revoke another
+person's organization grant. Revoke the named grant or PAT in iamnim when intended.
+Tokens are fetched at runtime, redirects refused, short expiry validated, and broker
+error bodies/credentials suppressed. Existing DataForSEO credentials and restored
+research history remain intact.
+
+Validation before activation: broker unit tests plus existing GSC/GA4/OAuth tests,
+TypeScript and production build; anonymous Caddy401 and authenticated health200;
+then actual property selection/read using a consenting account. Configuration or
+an optional health check saying "not configured" does not prove metric readiness.

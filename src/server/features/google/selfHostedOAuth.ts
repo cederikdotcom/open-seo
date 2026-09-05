@@ -1,3 +1,4 @@
+import { getIamnimGoogleBroker } from "@/server/lib/iamnimGoogleBroker";
 import { symmetricEncrypt } from "better-auth/crypto";
 import { env } from "cloudflare:workers";
 import { and, eq } from "drizzle-orm";
@@ -289,6 +290,8 @@ export async function createSelfHostedGoogleAuthorizationUrl(input: {
   callbackURL: string;
   publicOrigin: string;
 }) {
+  const broker = await getIamnimGoogleBroker();
+  if (broker) return broker.managementUrl;
   const config = await getGoogleOAuthClientConfig();
   if (!config || !(await hasSelfHostedGoogleOAuthConfig(config))) {
     throw new AppError(
